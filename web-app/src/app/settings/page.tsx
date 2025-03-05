@@ -5,7 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Download, Upload } from "lucide-react";
 import { readFileContent } from "@/lib/utils";
+import Link from "next/link";
+import { config, RouteType } from "@/config";
 
+const routes = Object.values(config.ROUTES).filter((route) => !(route as RouteType).hidden)
 export default function Settings() {
 	function handleExport() {
 		const tables = Object.keys(localStorage).map(table => [table, storage.get(table)]);
@@ -75,6 +78,23 @@ export default function Settings() {
 							<Upload/>
 							Export
 						</Button>
+					</div>
+				</CardContent>
+			</Card>
+			<Card className={"max-w-3xl w-full"}>
+				<CardHeader>
+					<CardTitle>Routs</CardTitle>
+				</CardHeader>
+				<CardContent className="flex flex-col gap-4">
+					<div className="space-y-4">
+						{routes.map((route, key) => (
+							(
+								<Link href={route.href} key={key}>
+									<Button color="primary" className="w-full m-2" variant="link">
+										{route.label}
+									</Button>
+								</Link>
+							)))}
 					</div>
 				</CardContent>
 			</Card>

@@ -16,19 +16,16 @@ export const config = {
 	ROUTES: {
 		home         : {
 			href : '/',
-			label: 'Home',
+			label: 'Main',
 		},
 		errorMessages: {
 			href : '/error-messages',
 			label: 'Troubleshooting',
 		},
-		devices      : {
-			href : '/devices',
-			label: 'All Systems',
-		},
 		workTimes    : {
 			href : '/work-times',
 			label: 'Time sheet',
+			hidden: true,
 		},
 		settings     : {
 			href : '/settings',

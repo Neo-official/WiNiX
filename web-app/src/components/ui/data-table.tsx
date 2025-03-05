@@ -33,7 +33,7 @@ import { ExportMenu } from "@/components/export-menu";
 import { Button } from "@/components/ui/button";
 
 interface DataTableProps<TData, TValue> {
-	title: string
+	title?: string | React.ReactNode
 	columns: ColumnDef<TData, TValue>[]
 	data: TData[]
 	importFilename: string
@@ -51,7 +51,7 @@ export function DataTable<TData, TValue>({
 	facetedFilters,
 	importFilename,
 	defaultColumnVisibility,
-	title,
+	title = "",
 	onImport,
 	onAdd,
 	onDelete,
@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>({
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
 	const [sorting, setSorting] = React.useState<SortingState>([])
 	const [globalFilter, setGlobalFilter] = React.useState("")
-	const [pagination, setPagination] = React.useState({pageIndex: 0, pageSize: Number.MAX_SAFE_INTEGER})
+	const [pagination, setPagination] = React.useState({pageIndex: 0, pageSize: 25})
 
 	const table = useReactTable<TData>({
 		data,
@@ -90,8 +90,8 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<div className="space-y-4">
-			<div className="sm:flex justify-between items-center mb-4">
-				<h1 className="text-2xl font-bold my-2">{title}</h1>
+			<div className="flex justify-between items-center mb-4">
+				<div className="text-2xl font-bold my-2">{title}</div>
 				<div className="space-x-2 my-2">
 					<ImportButton<TData> onImport={onImport}/>
 					<ExportMenu data={data} filename={importFilename}/>

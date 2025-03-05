@@ -2,26 +2,25 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { Device, DeviceArea, DeviceProduct, DeviceStatus } from '@/types'
+import { Device, DeviceArea, DeviceProduct, DeviceStatus, ErrorMessage } from '@/types'
 import { storage } from '@/lib/utils/storage'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { TableActions } from '@/components/table-actions'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import config from "@/config";
 import { ArrowUpDown, MapPin, MapPinCheckInside, MapPinPlusInside } from "lucide-react";
 
 import dynamic from "next/dynamic";
 import { DeviceSelect } from "@/app/devices/device-select";
 import { LMap } from "@/components/geo-map/types";
 import { defaultCenter, defaultZoom } from "@/components/geo-map/commons";
-import { DEVICES_KEY } from "@/lib/utils/db";
+import { DEVICES_KEY, ERROR_MESSAGES_KEY } from "@/lib/utils/db";
+import config from "@/config";
 
 const defaultColumnVisibility = {
 	id         : false,
@@ -32,9 +31,9 @@ const defaultColumnVisibility = {
 	status     : false,
 	product    : false,
 	area       : false,
-	model      : true,
-	city       : true,
-	phone      : true,
+	model      : false,
+	city       : false,
+	phone      : false,
 	unit       : true,
 	merchant   : true,
 	address    : false,
@@ -63,6 +62,51 @@ const facetedFilters: FacetedFilter[] = ([
 	})),
 }))
 
+
+function ErrorMessagesPopup() {
+	const [errorMessages, setErrorMessages] = useState<ErrorMessage[]>([])
+	const [selectedErrMsg, setSelectedErrMsg] = useState<ErrorMessage | null>(null)
+
+	useEffect(() => {
+		const savedData = storage.get(ERROR_MESSAGES_KEY)
+		if (savedData)
+			setErrorMessages(savedData)
+	}, [])
+
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button variant="outline">
+					{config.ROUTES.errorMessages.label}{' '}
+					{errorMessages.length > 0 && (`(${errorMessages.length})`)}
+				</Button>
+			</DialogTrigger>
+			<DialogContent className="sm:max-w-[425px]">
+				<DialogHeader>
+					<DialogTitle>{config.ROUTES.errorMessages.label}</DialogTitle>
+				</DialogHeader>
+				{selectedErrMsg && (
+					<div className="grid gap-4 py-4">
+						{[
+							['Code', 'code'],
+							['Message', 'message'],
+							['Remedy', 'remedy'],
+						].map(([label, key]) => (
+							<div key={key} className="flex items-center gap-4">
+								{label}: {selectedErrMsg[key as keyof ErrorMessage]}
+							</div>
+						))}
+					</div>
+				)}
+				<div className="grid grid-cols-10 gap-4 py-4">
+					{errorMessages?.map((message, index) => (
+						<Button variant="outline" onClick={() => setSelectedErrMsg(message)}>{message.code}</Button>
+					))}
+				</div>
+			</DialogContent>
+		</Dialog>
+	)
+}
 
 export default function Devices() {
 	// @ts-ignore
@@ -131,26 +175,47 @@ export default function Devices() {
 				</div>
 			),
 		},
-		{accessorKey: 'bank', header: 'Bank'},
-		{accessorKey: 'city', header: 'City'},
+		{
+			accessorKey: 'bank',
+			header     : ({column}) => (
+				<Button
+					variant="ghost"
+					className="px-2 rounded"
+					onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+				>
+					Bank
+					<ArrowUpDown/>
+				</Button>
+			),
+		},
+		{
+			accessorKey: 'city',
+			header     : ({column}) => (
+				<Button
+					variant="ghost"
+					className="px-2 rounded"
+					onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+				>
+					City
+					<ArrowUpDown/>
+				</Button>
+			),
+		},
 		{
 			accessorKey: 'name',
-			header     : ({column}) => {
-				return (
-					<Button
-						variant="ghost"
-						className="px-2 rounded"
-						onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-					>
-						Name
-						<ArrowUpDown/>
-					</Button>
-				)
-			},
+			header     : ({column}) => (
+				<Button
+					variant="ghost"
+					className="px-2 rounded"
+					onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+				>
+					Name
+					<ArrowUpDown/>
+				</Button>
+			),
 			cell       : ({row}) => (
 				<div className="flex items-center gap-3">
-					{row.original.product &&
-						<Badge variant="outline" className={'uppercase'}>{row.original.product}</Badge>}
+					{/* row.original.product && <Badge variant="outline" className={'uppercase'}>{row.original.product}</Badge> */}
 					<Button
 						variant="link"
 						className="p-0 capitalize"
@@ -311,29 +376,31 @@ export default function Devices() {
 	const handleAdd = () => {
 		const newId = Math.max(...data.map(item => item.id), 0) + 1
 		const newItem: Device = {
-			id           : newId,
-			bank         : '',
-			name         : '',
-			description  : '',
-			coordinates  : defaultCenter.join(','),
-			status       : DeviceStatus.PENDING,
-			product      : DeviceProduct.ATM,
-			area         : DeviceArea.CENTER,
-			model        : '',
-			city         : '',
-			phone        : '',
-			unit         : '',
-			merchant     : '',
-			address      : '',
-			irma         : '',
-			epp_key      : '',
-			software     : '',
-			mac_address  : '',
-			ip_address   : '',
-			ip_gateway   : '',
-			merchant_code: '',
-			terminal_id  : '',
-			serial_number: '',
+			id             : newId,
+			bank           : '',
+			name           : '',
+			description    : '',
+			coordinates    : defaultCenter.join(','),
+			status         : DeviceStatus.PENDING,
+			product        : DeviceProduct.ATM,
+			area           : DeviceArea.CENTER,
+			model          : '',
+			city           : '',
+			phone          : '',
+			unit           : '',
+			merchant       : '',
+			address        : '',
+			irma           : '',
+			epp_key        : '',
+			software       : '',
+			mac_address    : '',
+			ip_address     : '',
+			ip_gateway     : '',
+			merchant_code  : '',
+			terminal_id    : '',
+			serial_number  : '',
+			os             : '',
+			connection_type: '',
 		}
 		// const newData = [...data, newItem]
 		// setData(newData)
@@ -362,19 +429,18 @@ export default function Devices() {
 	}
 
 	return (
-		<div className="container mx-auto py-10">
-			<div className="mb-4">
-				<CustomMap
-					data={data}
-					onCoordinateSelect={(device, force) =>
-						force ?
-							handleEdit(device) :
-							setEditingItem(device)}
-					setMap={setMap}
-				/>
-			</div>
+		<div className="container mx-auto py-2">
+			<CustomMap
+				data={data}
+				onCoordinateSelect={(device, force) =>
+					force ?
+						handleEdit(device) :
+						setEditingItem(device)}
+				setMap={setMap}
+			/>
 			<DataTable<Device, keyof Device>
-				title={config.ROUTES.devices.label}
+				// title={config.ROUTES.devices.label}
+				title={<ErrorMessagesPopup/>}
 				columns={columns}
 				data={data}
 				onAdd={handleAdd}
@@ -448,6 +514,8 @@ export default function Devices() {
 									['irma', 'Irma'],
 									['epp_key', 'Epp Key'],
 									['software', 'Software'],
+									['os', 'OS'],
+									['connection_type', 'Connection Type'],
 									['mac_address', 'Mac Address'],
 									['ip_address', 'IP Address'],
 									['ip_gateway', 'IP Gateway'],
