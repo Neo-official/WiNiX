@@ -7,13 +7,13 @@ import { storage } from '@/lib/utils/storage'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { TableActions } from '@/components/table-actions'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowUpDown, MapPin, MapPinCheckInside, MapPinPlusInside } from "lucide-react";
+import { ArrowUpDown, MapPin, MapPinCheckInside, MapPinPlusInside, Pencil } from "lucide-react";
 
 import dynamic from "next/dynamic";
 import { DeviceSelect } from "@/app/devices/device-select";
@@ -21,6 +21,7 @@ import { LMap } from "@/components/geo-map/types";
 import { defaultCenter, defaultZoom } from "@/components/geo-map/commons";
 import { DEVICES_KEY, ERROR_MESSAGES_KEY } from "@/lib/utils/db";
 import config from "@/config";
+import Link from "next/link";
 
 const defaultColumnVisibility = {
 	id         : false,
@@ -37,6 +38,7 @@ const defaultColumnVisibility = {
 	unit       : true,
 	merchant   : true,
 	address    : false,
+	action     : false,
 	// irma         : false,
 	// epp_key      : false,
 	// software     : false,
@@ -84,6 +86,14 @@ function ErrorMessagesPopup() {
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
 					<DialogTitle>{config.ROUTES.errorMessages.label}</DialogTitle>
+					<DialogDescription>
+						<Link href={config.ROUTES.errorMessages.href}>
+							<Button variant="link">
+								<Pencil/>
+								Edit
+							</Button>
+						</Link>
+					</DialogDescription>
 				</DialogHeader>
 				{selectedErrMsg && (
 					<div className="grid gap-4 py-4">
@@ -99,8 +109,9 @@ function ErrorMessagesPopup() {
 					</div>
 				)}
 				<div className="grid grid-cols-10 gap-4 py-4">
-					{errorMessages?.map((message, index) => (
-						<Button variant="outline" onClick={() => setSelectedErrMsg(message)}>{message.code}</Button>
+					{errorMessages?.map((message, key) => (
+						<Button key={key} variant="outline" color={message === selectedErrMsg ? 'primary' : 'default'}
+								onClick={() => setSelectedErrMsg(message)}>{message.code}</Button>
 					))}
 				</div>
 			</DialogContent>
@@ -361,7 +372,8 @@ export default function Devices() {
 		// {accessorKey: 'terminal_id', header: 'Terminal ID'},
 		// {accessorKey: 'serial_number', header: 'Serial Number'},
 		{
-			id          : 'actions',
+			// id          : 'actions',
+			accessorKey : 'action',
 			header      : 'Actions',
 			cell        : ({row}) => (
 				<TableActions
@@ -369,7 +381,7 @@ export default function Devices() {
 					onDelete={() => handleDelete([row.original])}
 				/>
 			),
-			enableHiding: false,
+			enableHiding: true,
 		},
 	]
 
@@ -473,6 +485,17 @@ export default function Devices() {
 									}))}
 								/>
 							</div>
+							<div className="flex items-center space-x-2">
+								<span className="w-[100px]">Status:</span>
+								<DeviceSelect<DeviceStatus>
+									value={editingItem.status}
+									onChange={(status) => setEditingItem(prv => ({
+										...prv as Device,
+										status,
+									}))}
+									source={DeviceStatus}
+								/>
+							</div>
 							<div className="grid w-full items-center gap-1.5">
 								<Label htmlFor="description">Description</Label>
 								<Textarea
@@ -552,17 +575,6 @@ export default function Devices() {
 								<MapEditor
 									editingItem={editingItem}
 									setEditingItem={setEditingItem}
-								/>
-							</div>
-							<div className="flex items-center space-x-2">
-								<span className="w-[100px]">Status:</span>
-								<DeviceSelect<DeviceStatus>
-									value={editingItem.status}
-									onChange={(status) => setEditingItem(prv => ({
-										...prv as Device,
-										status,
-									}))}
-									source={DeviceStatus}
 								/>
 							</div>
 							<div className="flex justify-end space-x-2">

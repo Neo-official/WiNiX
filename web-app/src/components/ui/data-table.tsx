@@ -31,6 +31,9 @@ import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 import { ImportButton } from "@/components/importButton";
 import { ExportMenu } from "@/components/export-menu";
 import { Button } from "@/components/ui/button";
+import { Dropdown } from "react-day-picker";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { EllipsisVertical } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {
 	title?: string | React.ReactNode
@@ -92,10 +95,31 @@ export function DataTable<TData, TValue>({
 		<div className="space-y-4">
 			<div className="flex justify-between items-center mb-4">
 				<div className="text-2xl font-bold my-2">{title}</div>
-				<div className="space-x-2 my-2">
+				{/*<div className="sm:hidden space-x-2 my-2">*/}
+				{/*	<ImportButton<TData> onImport={onImport}/>*/}
+				{/*	<ExportMenu data={data} filename={importFilename}/>*/}
+				{/*	<Button color="primary" onClick={onAdd}>Add New</Button>*/}
+				{/*</div>*/}
+				<div className="hidden sm:flex space-x-2">
 					<ImportButton<TData> onImport={onImport}/>
 					<ExportMenu data={data} filename={importFilename}/>
 					<Button color="primary" onClick={onAdd}>Add New</Button>
+				</div>
+				{/*menu*/}
+				<div className="sm:hidden">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" className="p-4 w-8 h-8 text-2xl">
+								<EllipsisVertical/>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent>
+							<DropdownMenuItem className='text-primary' onClick={onAdd}>Add New</DropdownMenuItem>
+							<DropdownMenuSeparator/>
+							<ImportButton<TData> onImport={onImport} className='block w-full m-0 border-0 text-left px-2'/>
+							<ExportMenu data={data} filename={importFilename} className='block w-full m-0 border-0 text-left px-2'/>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 			<DataTableToolbar {...{table, globalFilter, setGlobalFilter, facetedFilters, importFilename, onDelete}}/>

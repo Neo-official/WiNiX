@@ -15,9 +15,9 @@ export type ErrorMessage = {
 }
 
 export enum DeviceStatus {
-	DONE    = 'done',
-	PENDING = 'visit',
-	BROKEN  = 'ticket',
+	DONE    = 'انجام شده',
+	PENDING = 'بازدید',
+	BROKEN  = 'لاگ',
 }
 
 export enum DeviceProduct {
