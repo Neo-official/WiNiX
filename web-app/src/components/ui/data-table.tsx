@@ -31,8 +31,7 @@ import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 import { ImportButton } from "@/components/importButton";
 import { ExportMenu } from "@/components/export-menu";
 import { Button } from "@/components/ui/button";
-import { Dropdown } from "react-day-picker";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EllipsisVertical } from "lucide-react";
 
 interface DataTableProps<TData, TValue> {

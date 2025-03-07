@@ -26,7 +26,8 @@ export function ImportButton<TData>({onImport, ...props}: ImportButtonProps<TDat
 						try {
 							importedData = importData.fromJSON(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported JSON must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
@@ -38,7 +39,8 @@ export function ImportButton<TData>({onImport, ...props}: ImportButtonProps<TDat
 						try {
 							importedData = importData.fromCSV(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported CSV must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
@@ -50,7 +52,8 @@ export function ImportButton<TData>({onImport, ...props}: ImportButtonProps<TDat
 						try {
 							importedData = importData.fromExcel(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported Excel must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
