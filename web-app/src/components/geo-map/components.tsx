@@ -1,27 +1,32 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Device, DeviceStatus } from "@/types";
-import { divIcon, point } from "leaflet";
+import { divIcon, LatLng, point } from "leaflet";
 import { colors, defaultCenter, defaultZoom, icons } from "@/components/geo-map/commons";
 import { MapCenterProp, MapProps } from "@/components/geo-map/types";
 import { Marker, Popup, Tooltip, useMap, useMapEvents } from "react-leaflet";
-import { calculateAverageCoordinates } from "@/components/geo-map/utils";
 import { RotateCcw, LocateFixed } from "lucide-react";
 import { DeviceSelect } from "@/app/devices/device-select";
 
 export const createClusterCustomIcon = (device: Device) => divIcon({
-	html      : `<div class="bg-primary-500 w-8 h-8">${icons[device.status]}</div>`,
-	className : device.status === DeviceStatus.BROKEN ? colors[device.status] : colors[device.area],
+	html: `<div class="bg-primary-500 w-8 h-8">${icons[device.status]}</div>`,
+	// @ts-ignore
+	className : device.status === DeviceStatus.BROKEN ? colors[device.status] : colors[(device.area in colors ? device.area : 'default') as string],
 	iconSize  : point(40, 40, true),
 	iconAnchor: point(20, 20, true),
 });
 
-export function MapCenter({data}: MapCenterProp) {
-	const coordinates = 0 < data.length ? calculateAverageCoordinates(data) : defaultCenter;
+export function MapCenter({
+	// data
+}: MapCenterProp) {
+	const coordinates =
+			  // 0 < data.length ?
+			  //   calculateAverageCoordinates(data) :
+			  defaultCenter;
 	const map = useMap()
 	const [location, setLocation] = useState(map.getCenter())
 	const {lat, lng} = location
-	const text = `${lat.toFixed(4)}, ${lng.toFixed(4)}`
+	const text = `${lat.toFixed(4)}, ${lng.toFixed(5)}`
 	useMapEvents({
 		move(event) {
 			setLocation(event.target.getCenter())
@@ -159,6 +164,32 @@ export function UserCurrentLocation() {
 			map.flyTo(e.latlng, map.getZoom())
 		},
 	})
+
+	useEffect(() => {
+		let watchId = 0
+
+		function showPosition(position: any) {
+			const pos = new LatLng(position.coords.latitude, position.coords.longitude)
+			setPosition(pos)
+			// map.flyTo(pos, map.getZoom())
+		}
+
+		if (navigator.geolocation) {
+			watchId = navigator.geolocation.watchPosition(
+				showPosition,
+				err => console.error(err.code, err.message),
+				{enableHighAccuracy: true, timeout: 60000, maximumAge: 600000},
+			);
+		}
+		else {
+			console.log('Geolocation is not supported by this browser.')
+		}
+
+		return () => {
+			navigator.geolocation.clearWatch(watchId)
+		}
+	}, [])
+
 
 	return (
 		<>

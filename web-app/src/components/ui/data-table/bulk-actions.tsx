@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { buttons, ExportMenuProps } from "@/components/export-menu";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Upload, Trash } from "lucide-react";
+import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 
 function ExportMenu<TData>({data, filename}: ExportMenuProps<TData>) {
 	return (
@@ -34,11 +35,17 @@ function getSelectedRows<TData>(table: Table<TData>) {
 
 interface DataTableBulkActionsProps<TData> {
 	table: Table<TData>
+	facetedFilters?: FacetedFilter[]
 	importFilename?: string
 	onDelete?: (data: TData[]) => void
 }
 
-export function DataTableBulkActions<TData>({table, importFilename, onDelete}: DataTableBulkActionsProps<TData>) {
+export function DataTableBulkActions<TData>({
+	table,
+	facetedFilters,
+	importFilename,
+	onDelete,
+}: DataTableBulkActionsProps<TData>) {
 	const selectedValues = getSelectedRows(table)
 	return (
 		0 < selectedValues.length ? (
@@ -51,6 +58,25 @@ export function DataTableBulkActions<TData>({table, importFilename, onDelete}: D
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<ExportMenu data={selectedValues} filename={importFilename || 'data'}/>
+					{facetedFilters?.map((filter) => (
+						<DropdownMenuSub key={filter.key}>
+							<DropdownMenuSubTrigger>
+								{filter.title}
+							</DropdownMenuSubTrigger>
+							<DropdownMenuPortal>
+								<DropdownMenuSubContent>
+									{filter.options.map((option) => (
+										<DropdownMenuItem
+											key={option.value}
+											onClick={() => selectedValues.map(data => data[filter.key as keyof TData] = option.value)}
+										>
+											{option.label}
+										</DropdownMenuItem>
+									))}
+								</DropdownMenuSubContent>
+							</DropdownMenuPortal>
+						</DropdownMenuSub>
+					))}
 					<DropdownMenuItem className={`text-error-600`} onClick={() => {
 						table.toggleAllRowsSelected(false);
 						onDelete?.(selectedValues)

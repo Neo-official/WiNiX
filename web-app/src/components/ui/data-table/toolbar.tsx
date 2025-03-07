@@ -2,7 +2,7 @@ import { Table } from "@tanstack/react-table"
 
 import React from "react";
 import { DataTableViewOptions } from "@/components/ui/data-table/view-options";
-import { DataTableFilters } from "@/components/ui/data-table/filters";
+import { DataTableFacetedFilters, DataTableSearchFilter } from "@/components/ui/data-table/filters";
 import { FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 import { DataTableBulkActions } from "@/components/ui/data-table/bulk-actions";
 
@@ -25,11 +25,16 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
 
 	return (
-		<div className="sm:flex items-center justify-between">
-			<DataTableFilters {...{table, globalFilter, setGlobalFilter, facetedFilters}}/>
-			<div className={"flex items-center space-x-2"}>
-				<DataTableBulkActions {...{table, importFilename, onDelete}}/>
-				<DataTableViewOptions {...{table}}/>
+		<div className="space-y-2">
+			<div className={"flex items-center justify-between space-x-2"}>
+				<DataTableSearchFilter {...{globalFilter, setGlobalFilter}}/>
+				<div className="flex items-center">
+					<DataTableBulkActions {...{table, facetedFilters, importFilename, onDelete}}/>
+					<DataTableViewOptions {...{table}}/>
+				</div>
+			</div>
+			<div className="space-x-2 space-y-2">
+				<DataTableFacetedFilters {...{table, facetedFilters}}/>
 			</div>
 		</div>
 	)

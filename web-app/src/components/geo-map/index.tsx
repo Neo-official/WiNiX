@@ -9,13 +9,20 @@ import { MapEditorProps, MapProps } from "@/components/geo-map/types";
 import { defaultCenter, defaultZoom } from "@/components/geo-map/commons";
 import { createClusterCustomIcon, CustomMarker, MapCenter, UserCurrentLocation } from "@/components/geo-map/components";
 import { LayerGroup, LayersControl, MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
-import { calculateAverageCoordinates } from "@/components/geo-map/utils";
+// import { calculateAverageCoordinates } from "@/components/geo-map/utils";
 
 export const CustomMap = ({data, onCoordinateSelect, setMap}: MapProps) => {
 	// Parse coordinates string to [lat, lng]
-	const coordinates = data.length > 0 ?
-		calculateAverageCoordinates(data).toString()
-		: defaultCenter.join(',')
+	const status = Object.values(DeviceStatus)
+	const checks = {
+		[DeviceStatus.PENDING]: true,
+		[DeviceStatus.DONE]   : false,
+		[DeviceStatus.BROKEN] : true,
+	}
+	const coordinates =
+			  // data.length > 0 ?
+				//   calculateAverageCoordinates(data.filter(device => checks[device.status])).toString() :
+				  defaultCenter.join(',')
 	const [lat, lng] = coordinates.split(',').map(coord => parseFloat(coord.trim()))
 	const defaultPosition: [number, number] = [lat || defaultCenter[0], lng || defaultCenter[1]]
 	return (
@@ -31,38 +38,20 @@ export const CustomMap = ({data, onCoordinateSelect, setMap}: MapProps) => {
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 			/>
 			<MapCenter data={data}/>
-			<UserCurrentLocation />
+			<UserCurrentLocation/>
 
-			{/* Main marker for the selected location */}
-			{/*<Marker position={defaultPosition}>*/}
-			{/*	<Popup>*/}
-			{/*		Selected Location*/}
-			{/*	</Popup>*/}
-			{/*</Marker>*/}
-			{data
-			.filter(device => device.status === DeviceStatus.PENDING)
-			.map((device) => (
-				<CustomMarker key={device.id} device={device} onCoordinateSelect={onCoordinateSelect}/>
-			))}
 			<LayersControl position="topright">
-				<LayersControl.Overlay checked name="Show Done Devices">
-					<LayerGroup>
-						{data
-						.filter(device => device.status === DeviceStatus.DONE)
-						.map((device) => (
-							<CustomMarker key={device.id} device={device} onCoordinateSelect={onCoordinateSelect}/>
-						))}
-					</LayerGroup>
-				</LayersControl.Overlay>
-				<LayersControl.Overlay checked name="Show Broken Devices">
-					<LayerGroup>
-						{data
-						.filter(device => device.status === DeviceStatus.BROKEN)
-						.map((device) => (
-							<CustomMarker key={device.id} device={device} onCoordinateSelect={onCoordinateSelect}/>
-						))}
-					</LayerGroup>
-				</LayersControl.Overlay>
+				{status.map((status) => (
+					<LayersControl.Overlay key={status} checked={checks[status]} name={`Show "${status}" Devices`}>
+						<LayerGroup>
+							{data
+							.filter(device => device.status === status)
+							.map((device) => (
+								<CustomMarker key={device.id} device={device} onCoordinateSelect={onCoordinateSelect}/>
+							))}
+						</LayerGroup>
+					</LayersControl.Overlay>
+				))}
 			</LayersControl>
 		</MapContainer>
 	)

@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import React from "react";
 import { importData } from "@/lib/utils/storage";
 import { readFileContent } from "@/lib/utils";
 
 type ImportButtonProps<TData> = {
 	onImport?: (data: TData[]) => void
-}
+} & ButtonProps
 
-export function ImportButton<TData>({onImport}: ImportButtonProps<TData>) {
+export function ImportButton<TData>({onImport, ...props}: ImportButtonProps<TData>) {
 	function handleImport() {
 		const input = document.createElement('input');
 		input.type = 'file';
@@ -26,7 +26,8 @@ export function ImportButton<TData>({onImport}: ImportButtonProps<TData>) {
 						try {
 							importedData = importData.fromJSON(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported JSON must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
@@ -38,7 +39,8 @@ export function ImportButton<TData>({onImport}: ImportButtonProps<TData>) {
 						try {
 							importedData = importData.fromCSV(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported CSV must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
@@ -50,7 +52,8 @@ export function ImportButton<TData>({onImport}: ImportButtonProps<TData>) {
 						try {
 							importedData = importData.fromExcel(content)
 							if (!Array.isArray(importedData)) {
-								throw new Error('Imported Excel must be an array');
+								console.error('Imported JSON must be an array')
+								return
 							}
 						}
 						catch (error) {
@@ -89,6 +92,6 @@ export function ImportButton<TData>({onImport}: ImportButtonProps<TData>) {
 	}
 
 	return (
-		<Button variant="outline" onClick={handleImport}>Import</Button>
+		<Button variant="outline" onClick={handleImport} {...props}>Import</Button>
 	)
 }

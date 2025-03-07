@@ -15,9 +15,9 @@ export type ErrorMessage = {
 }
 
 export enum DeviceStatus {
-	DONE    = 'done',
-	PENDING = 'visit',
-	BROKEN  = 'ticket',
+	DONE    = 'انجام شده',
+	PENDING = 'بازدید',
+	BROKEN  = 'لاگ',
 }
 
 export enum DeviceProduct {
@@ -28,9 +28,12 @@ export enum DeviceProduct {
 }
 
 export enum DeviceArea {
-	NORTH  = 'north',
-	CENTER = 'center',
-	SOUTH  = 'south',
+	NORTH   = 'شمال',
+	CENTER  = 'مركز',
+	SOUTH   = 'جنوب',
+	AZNA    = 'ازنا',
+	BROJERD = 'بروجرد',
+	NULL    = 'تعریف نشده',
 	// WEST    = 'west',
 	// EAST    = 'east',
 }
@@ -56,6 +59,8 @@ export type Device = {
 	mac_address: string
 	ip_address: string
 	ip_gateway: string
+	os: string
+	connection_type: string
 	merchant_code: string
 	terminal_id: string
 	serial_number: string

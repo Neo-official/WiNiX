@@ -8,28 +8,39 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter, FacetedFilter } from "@/components/ui/data-table/faceted-filter";
 
-interface DataTableFiltersProps<TData> {
-	table: Table<TData>
+interface DataTableFiltersProps {
 	globalFilter: string
 	setGlobalFilter: React.Dispatch<React.SetStateAction<string>>
-	facetedFilters?: FacetedFilter[]
 }
 
-export function DataTableFilters<TData>({
-	table,
+export function DataTableSearchFilter({
 	globalFilter,
 	setGlobalFilter,
-	facetedFilters,
-}: DataTableFiltersProps<TData>) {
-	const isFiltered = table.getState().columnFilters.length > 0
+}: DataTableFiltersProps) {
 	return (
-		<div className="sm:flex items-center gap-2">
+		<>
 			<Input
 				placeholder="Search..."
 				value={globalFilter}
 				onChange={(e) => setGlobalFilter(e.target.value)}
-				className="max-w-sm mb-4"
+				className="max-w-sm"
 			/>
+		</>
+	)
+}
+
+interface DataTableFacetedFiltersProps<TData>{
+	table: Table<TData>
+	facetedFilters?: FacetedFilter[]
+}
+
+export function DataTableFacetedFilters<TData> ({
+	table,
+	facetedFilters,
+}: DataTableFacetedFiltersProps<TData>) {
+	const isFiltered = table.getState().columnFilters.length > 0
+	return (
+		<>
 			{facetedFilters?.map((filter) => (
 				<DataTableFacetedFilter
 					key={filter.key}
@@ -48,6 +59,6 @@ export function DataTableFilters<TData>({
 					<X/>
 				</Button>
 			)}
-		</div>
+		</>
 	)
 }
