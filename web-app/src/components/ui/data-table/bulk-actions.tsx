@@ -37,6 +37,7 @@ interface DataTableBulkActionsProps<TData> {
 	table: Table<TData>
 	facetedFilters?: FacetedFilter[]
 	importFilename?: string
+	onEdit?: (data: TData[]) => void
 	onDelete?: (data: TData[]) => void
 }
 
@@ -44,6 +45,7 @@ export function DataTableBulkActions<TData>({
 	table,
 	facetedFilters,
 	importFilename,
+	onEdit,
 	onDelete,
 }: DataTableBulkActionsProps<TData>) {
 	const selectedValues = getSelectedRows(table)
@@ -68,7 +70,7 @@ export function DataTableBulkActions<TData>({
 									{filter.options.map((option) => (
 										<DropdownMenuItem
 											key={option.value}
-											onClick={() => selectedValues.map(data => data[filter.key as keyof TData] = option.value)}
+											onClick={() => onEdit?.(selectedValues.map(data => data[filter.key as keyof TData] = option.value))}
 										>
 											{option.label}
 										</DropdownMenuItem>

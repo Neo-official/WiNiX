@@ -7,8 +7,9 @@ import 'leaflet-defaulticon-compatibility'
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css'
 import { MapEditorProps, MapProps } from "@/components/geo-map/types";
 import { defaultCenter, defaultZoom } from "@/components/geo-map/commons";
-import { createClusterCustomIcon, CustomMarker, MapCenter, UserCurrentLocation } from "@/components/geo-map/components";
+import { createClusterCustomIcon, CustomMarker, FullscreenControl, MapCenter, UserCurrentLocation } from "@/components/geo-map/components";
 import { LayerGroup, LayersControl, MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import 'leaflet.fullscreen/Control.FullScreen.css';
 // import { calculateAverageCoordinates } from "@/components/geo-map/utils";
 
 export const CustomMap = ({data, onCoordinateSelect, setMap}: MapProps) => {
@@ -39,6 +40,8 @@ export const CustomMap = ({data, onCoordinateSelect, setMap}: MapProps) => {
 			/>
 			<MapCenter data={data}/>
 			<UserCurrentLocation/>
+			<FullscreenControl/>
+
 
 			<LayersControl position="topright">
 				{status.map((status) => (

@@ -5,8 +5,10 @@ import { divIcon, LatLng, point } from "leaflet";
 import { colors, defaultCenter, defaultZoom, icons } from "@/components/geo-map/commons";
 import { MapCenterProp, MapProps } from "@/components/geo-map/types";
 import { Marker, Popup, Tooltip, useMap, useMapEvents } from "react-leaflet";
-import { RotateCcw, LocateFixed } from "lucide-react";
+import { RotateCcw, LocateFixed, Maximize2, Minimize2 } from "lucide-react";
 import { DeviceSelect } from "@/app/devices/device-select";
+import 'leaflet.fullscreen';
+import 'leaflet.fullscreen/Control.FullScreen.css';
 
 export const createClusterCustomIcon = (device: Device) => divIcon({
 	html: `<div class="bg-primary-500 w-8 h-8">${icons[device.status]}</div>`,
@@ -209,4 +211,90 @@ export function UserCurrentLocation() {
 			</Button>
 		</>
 	)
+}
+
+
+// export function FullscreenControl() {
+// 	const map = useMap();
+//
+// 	useEffect(() => {
+// 		// @ts-ignore (since TypeScript doesn't know about the fullscreen control)
+// 		const fullscreenControl = new Control.Fullscreen({
+// 			position: 'topright',
+// 			title   : {
+// 				'false': 'View Fullscreen',
+// 				'true' : 'Exit Fullscreen',
+// 			},
+// 		});
+//
+// 		map.addControl(fullscreenControl);
+//
+// 		// Cleanup on unmount
+// 		return () => {
+// 			map.removeControl(fullscreenControl);
+// 		};
+// 	}, [map]);
+//
+// 	const toggleFullscreen = () => {
+// 		if (map.isFullscreen()) {
+// 			map.toggleFullscreen();
+// 		}
+// 		else {
+// 			map.toggleFullscreen();
+// 		}
+// 	};
+//
+// 	return (
+// 		<Button
+// 			variant="link"
+// 			className="absolute right-2 top-2 z-[1] bg-white text-black rounded px-2 py-1 border-2 border-neutral-400"
+// 			onClick={toggleFullscreen}
+// 		>
+// 			Fullscreen
+// 		</Button>
+// 	);
+// }
+
+
+export function FullscreenControl() {
+	const map = useMap();
+	const [isFullscreen, setIsFullscreen] = useState(false);
+
+	const toggleFullscreen = () => {
+		// @ts-ignore
+		if (!document.fullscreenElement) {
+			const container = map.getContainer();
+			if (container.requestFullscreen) {
+				container.requestFullscreen()
+				.then(() => {
+					map.invalidateSize();
+				});
+				// if (map) {
+				// 	setTimeout(() => {
+				// 		map.invalidateSize();
+				// 	}, 100);
+				// }
+				setIsFullscreen(true)
+			}
+		}
+		else {
+			if (document.exitFullscreen) {
+				document.exitFullscreen()
+				.then(() => {
+					map.invalidateSize();
+				});
+				setIsFullscreen(false)
+			}
+		}
+	};
+
+	return (
+		<Button
+			variant="link"
+			className="absolute left-2 bottom-12 z-[1] bg-white text-black rounded px-2 py-1 border-2 border-neutral-400"
+			onClick={toggleFullscreen}
+		>
+			{isFullscreen ? <Minimize2/> : <Maximize2/>}
+		</Button>
+	);
 }

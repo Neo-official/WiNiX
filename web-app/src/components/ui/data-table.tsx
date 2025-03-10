@@ -56,6 +56,7 @@ export function DataTable<TData, TValue>({
 	title = "",
 	onImport,
 	onAdd,
+	onEdit,
 	onDelete,
 }: DataTableProps<TData, TValue>) {
 	const [rowSelection, setRowSelection] = React.useState({})
@@ -121,7 +122,7 @@ export function DataTable<TData, TValue>({
 					</DropdownMenu>
 				</div>
 			</div>
-			<DataTableToolbar {...{table, globalFilter, setGlobalFilter, facetedFilters, importFilename, onDelete}}/>
+			<DataTableToolbar {...{table, data, globalFilter, setGlobalFilter, facetedFilters, importFilename,onEdit, onDelete}}/>
 			<div className="rounded-md border">
 				<Table>
 					<TableHeader>

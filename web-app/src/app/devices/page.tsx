@@ -144,7 +144,7 @@ export default function Devices() {
 					}
 					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
-					className="translate-y-[2px]"
+					className="translate-y-[2px] m-2"
 				/>
 			),
 			cell         : ({row}) => (
@@ -152,10 +152,10 @@ export default function Devices() {
 					checked={row.getIsSelected()}
 					onCheckedChange={(value) => row.toggleSelected(!!value)}
 					aria-label="Select row"
-					className="translate-y-[2px]"
+					className="translate-y-[2px] mx-2"
 				/>
 			),
-			enableSorting: false,
+		 	enableSorting: false,
 			enableHiding : false,
 		},
 		{
@@ -461,6 +461,12 @@ export default function Devices() {
 				onImport={data => {
 					setData(data)
 					storage.set(DEVICES_KEY, data)
+				}}
+				onEdit={selectedData => {
+					const selected = Object.fromEntries(selectedData.map(item => [item.id, item]))
+					const newData = data.map(item => selected[item.id] || item)
+					setData(newData)
+					storage.set(DEVICES_KEY, newData)
 				}}
 				onDelete={handleDelete}
 				importFilename={DEVICES_KEY}
