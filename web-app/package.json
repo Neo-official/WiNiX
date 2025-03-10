@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "static": "cross-env NEXT_PUBLIC_IS_MOBILE=true next build"
+    "static": "cross-env NEXT_PUBLIC_IS_MOBILE=true next build",
+    "export" : "cross-env NEXT_PUBLIC_BASE_PATH='/WiNiX'  NEXT_PUBLIC_IS_MOBILE=true next build"
   },
   "dependencies": {
     "@changey/react-leaflet-markercluster": "^4.0.0-rc1",
